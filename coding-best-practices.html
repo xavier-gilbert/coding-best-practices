@@ -1,0 +1,620 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+  <head>
+    <title>Coding Best Practices</title>
+    <meta charset="utf-8" />
+    <meta name="author" content="Xavier Gilbert" />
+    <meta name="date" content="2021-05-12" />
+    <link href="libs/remark-css/default.css" rel="stylesheet" />
+    <link href="libs/remark-css/default-fonts.css" rel="stylesheet" />
+  </head>
+  <body>
+    <textarea id="source">
+class: center, middle, inverse, title-slide
+
+# Coding Best Practices
+## </br>
+### Xavier Gilbert
+### FSA
+### 2021-05-12
+
+---
+
+
+
+
+
+&lt;div style="text-align: center"&gt;
+  &lt;img src="i_will_not_write_bad_code.png" style="width: 80%; padding-top: 90px;"&gt;
+&lt;/div&gt;
+
+
+---
+class: inverse, center, middle
+
+# Motivations
+
+---
+class: center, middle
+
+&lt;div style="text-align: center"&gt;
+  &lt;p&gt;
+    &lt;em&gt;"Code is read more often than it is written."&lt;/em&gt;
+  &lt;/p&gt;
+  &lt;p&gt;
+    -- Guido van Rossum
+  &lt;/p&gt;
+&lt;/div&gt;
+
+---
+
+# Motivation
+
+During our coder/developer journey, we have all had to: 
+
+* Contribute to or take over someone else's code
+* Review or QA a collaborator's code
+* Read our own code ...
+
+&lt;div style="text-align: center"&gt;
+  &lt;img src="code_forgot.webp" style="width: 80%"&gt;
+&lt;/div&gt;
+
+---
+
+# Motivation
+
+Programming is not that far from authoring an essay, a book, a thesis, or a report. Developers, just like writers, have:
+
+* Personal styles, patterns and quirks
+* Characteristic skillsets (including domain specific ones)
+* Personal views
+* Differing strategies (a.k.a. "There is more than one way to skin a cat.")
+
+&lt;div style="text-align: center"&gt;
+  &lt;img src="the_art_of_programming.jpeg" style="height: 80%"&gt;
+&lt;/div&gt;
+
+---
+
+# Motivation
+
+Everything in your house has a designated place for it. The stove goes in the kitchen and you would not put it in your bedroom, would you?
+
+&lt;div style="text-align: center"&gt;
+  &lt;img src="misplacement.png" style="height: 400px"&gt;
+&lt;/div&gt;
+
+---
+
+# In Summary, best practices ...
+
+--
+
+&lt;br/&gt;
+&lt;br/&gt;
+&lt;br/&gt;
+
+&gt; * Facilitate collaboration and enhance code maintanability.
+
+--
+
+&gt; * Reduce the cognitive effort resulting from structural disparities. Instead, it places a special focus on the narrative (and logic).
+
+--
+
+&gt; * Ease up your workload by acting as a boilerplate (blue print): you can focus on the code's logic instead.
+
+---
+class: center, middle
+
+# Best practices ...
+
+&lt;div style="font-size: 20px;"&gt;
+  &lt;blockquote&gt;
+  &lt;p&gt;
+    Are not just some boring rules!
+  &lt;/p&gt;
+  
+--
+
+  &lt;p&gt;
+    Have been built by coders, teams, geeks, nerds, designers ... to make our lives easier and to make us better team players.
+  &lt;/p&gt;
+  
+--
+  
+  &lt;p&gt;
+    Lead to enhanced productivity, collaboration, and even happiness within teams.
+  &lt;/p&gt;
+  
+  &lt;/blockquote&gt;
+&lt;/div&gt;
+
+---
+class: inverse, center, middle
+
+# Naming
+
+---
+
+# Did you say "naming"?
+
+&lt;div style="text-align: center;"&gt;
+  &lt;img src="elephant.jpg" style="height: 450px"&gt;
+&lt;/div&gt;
+
+---
+
+# Did you say "naming"?
+
+&lt;div style="text-align: center; padding-top: 130px;"&gt;
+  &lt;p&gt;
+    &lt;em&gt;"There are only two hard things in Computer Science: cache invalidation and naming things."&lt;/em&gt;
+  &lt;/p&gt;
+  &lt;p&gt;
+    -- Phil Karlton
+  &lt;/p&gt;
+&lt;/div&gt;
+&lt;br&gt;
+
+
+---
+
+# Good Vs Bad
+
+.pull-left[
+Does what it says on the tin:
+
+```r
+*query_google_places &lt;- function(url) {
+  pre_process_url(url) %&gt;%
+    fromJSON()
+}
+```
+
+Concise:
+```r
+*json_to_csv &lt;- function(fname) {
+  fromJSON(fname) %&gt;%
+    write_csv("./foo.csv")
+}
+```
+
+Consistent:
+```r
+*trim_whitespaces &lt;- function(string) {
+  # DO STUFF
+}
+
+*filter_pattern &lt;- function(string, pattern) {
+  # DO STUFF
+}
+```
+]
+
+.pull-right[
+YOLO!:
+
+```r
+*get_data &lt;- function(url) {
+  pre_process_url(url) %&gt;%
+    fromJSON()
+}
+```
+
+Stutter:
+```r
+*fct_convert_json_to_csv &lt;- function(fname) {
+  fromJSON(fname) %&gt;%
+    write_csv("./foo.csv")
+}
+```
+
+YOLO!:
+```
+*trimWhiteSpaces &lt;- function(input) {
+  # DO STUFF
+}
+
+*FSA_filter &lt;- function(string1, string2) {
+  # DO STUFF
+}
+```
+]
+
+&gt; See [The tidyverse style guide](http://adv-r.had.co.nz/Style.html), by Hadley Wickham.
+
+---
+
+# Naming on steroids
+
+&lt;style type="text/css"&gt;
+.remark-code {
+  display: block;
+  overflow-x: auto;
+  padding: .5em;
+  color: #333;
+  background: #f8f8f8;
+  font-size: 12px;
+}
+&lt;/style&gt;
+
+
+```elixir
+defmodule Identicon.image do
+
+  def hash_string(input) do
+    hex = :crypto.hash(:md5, input)
+          |&gt; :binary.bin_to_list
+    
+    %Identicon.Image{hex: hex}
+  end
+  
+  def pick_color(%Identicon.Image{hex: [r, g, b | _tail]} = image) do
+    %Identicon.Image(image | color: {r, g, b})
+  end
+  
+  # DO MORE STUFF ...
+  
+  def main(input) do
+    input
+    |&gt; hash_string
+    |&gt; pick_color
+    |&gt; build_grid
+    |&gt; filter_odd_square
+    |&gt; build_pixel_map
+    |&gt; draw_image
+    |&gt; save_image
+  end
+end
+```
+
+--
+
+&gt; Good naming can become an abstraction layer to a code base. It makes both the code and its logic easily understandable by anyone.
+
+---
+
+# Not good enough though ...
+
+&lt;div style="text-align: center;"&gt;
+  &lt;img src="batman_needs_robin.jpg" style="height: 480px"&gt;
+&lt;/div&gt;
+
+---
+
+# Documenting
+
+.pull-left[
+Good
+```r
+#' Replace patterns in a string (use regex).
+#'
+#' @param string A character vector.
+#' @param from A string containing the patterns ...
+#' @param to A string vector of the replacements (element-wise) for `from`.
+#' @return A character vector.
+#' @examples
+#' string &lt;- "Here, is a string: this is a test one."
+#' from &lt;- c("H.*,", ":", "\\.")
+#' to &lt;- c("", "", "")
+#' replace_in_string(string, from, to)
+#'
+#' @importFrom stringi stri_replace_all_regex
+#' @importFrom stringr str_squish
+#' @importFrom purrr when
+replace_in_string &lt;- function(string, from, to) {
+  stri_replace_all_regex(
+    string,
+    pattern = from,
+    replacement = to,
+    vectorize_all = FALSE
+  ) %&gt;%
+    when(squish_ws ~ str_squish(.),
+         ~.
+    )
+}
+```
+]
+
+.pull-right[
+Poor ... Bad
+```r
+# function to replace a pattern in a string
+replace_in_string &lt;- function(string, p1, p2) {
+  # replace regex
+  stri_replace_all_regex(
+    string,
+    p1,
+    p2,
+    vectorize_all = FALSE
+  ) %&gt;%
+    when(squish_ws ~ str_squish(.),
+         ~.
+    )
+}
+```
+* stutter
+* unclear naming
+* mix positional and named parameters
+* no imports and no context
+* no example
+]
+
+---
+
+# Documentation ...
+
+--
+
+&lt;br/&gt;
+&lt;br/&gt;
+
+&gt; * Supports your code, enhances debug and maintainability
+
+--
+
+&gt; * Facilitates code sharing
+
+--
+
+&gt; * Helps you remember
+
+--
+
+&gt; * Improves testing (`@example` in R or `doctest` in Python)
+
+--
+
+&gt; * Is a pre-requisite to building packages
+
+---
+
+# Style, formatting and identation
+
+
+&lt;div style="text-align: center;"&gt;
+  &lt;img src="unformatted.jpeg" style="height: 300px; padding-top: 50px;"&gt;
+&lt;/div&gt;
+
+---
+
+# Style, formatting and identation
+
+```python
+output = google_places[["postcode", "address", "candidates"]][google_places["candidates"] == 1].drop_duplicates().groupby("postcode").size().reset_index().compute()
+```
+
+--
+
+"Let there exist some natural number `\(x &gt; 5\)`, and an automorphism `\(f\)` ... then there exist such number ..."
+
+&lt;div style="text-align: center;"&gt;
+  &lt;img src="unformatted_2.png" style="height: 350px;"&gt;
+&lt;/div&gt;
+
+---
+
+# Style, formatting and identation
+
+```python
+output = google_places[["postcode", "address", "candidates"]][google_places["candidates"] == 1].drop_duplicates().groupby("postcode").size().reset_index().compute()
+```
+--
+
+```python
+output = (
+    google_places[["postcode", "address", "candidates"]][
+        google_places["candidates"] == 1
+    ]
+    .drop_duplicates()
+    .groupby("postcode")
+    .size()
+    .reset_index()
+    .compute()
+)
+```
+
+--
+
+&lt;div style="text-align: center;"&gt;
+  &lt;img src="zenboni_2.jpg" style="height: 250px;"&gt;
+&lt;/div&gt;
+
+---
+
+# Style, formatting and identation
+
+--
+
+&lt;br/&gt;
+&lt;br/&gt;
+
+&gt; * Easier to read = easier to understand
+
+--
+
+&gt; * Easier to read = easier to debug (closures in particular)
+
+--
+
+&gt; * Easy (pre) formatting: &lt;kbd&gt;Ctrl&lt;/kbd&gt; + &lt;code&gt;⇧&lt;/code&gt; + &lt;kbd&gt;A&lt;/kbd&gt; (RStudio)
+
+--
+
+&gt; * Use [`styler`](https://www.tidyverse.org/blog/2017/12/styler-1.0.0/) (R), [`black`](https://black.readthedocs.io/en/stable/) (python)
+
+--
+
+&gt; * There is one for every language, e.g. [`Prettier`](https://prettier.io/) covers HTML, SCSS, JSX, Elm, PHP, Ruby, Java, Javascript, ...
+
+---
+
+# Consistency
+
+&lt;br/&gt;
+
+```r
+library(xml2)
+
+#Function to get DEFRA data
+DEFRA_get &lt;- function(URL_DEFRA){
+  # Function to download DEFRA data from XML URL string input
+  URL &lt;- URL_DEFRA
+  res &lt;- read_xml(URL)
+  res &lt;- xml2::xml_child(res, 2)
+  res &lt;- XML::xmlParse(res)
+  
+  # extract establishment data
+  est &lt;- res %&gt;%
+    XML::getNodeSet("//establishement") %&gt;%
+    XML::xmlToDataFrame()
+
+  res2 &lt;- xmlToDataFrame(res)
+  res3 &lt;- cbind(est, res2)
+
+  res &lt;- res3
+  res[["establishment"]] &lt;- gsub("[0-9]", "", res$establishment)
+  res$URL &lt;- URL_DEFRA
+  
+  return(res)
+}
+```
+
+---
+
+# Consistency
+
+&lt;div style="text-align: center;"&gt;
+  &lt;img src="this_is_fine.jpg" style="height: 300px; padding-top: 50px;"&gt;
+&lt;/div&gt;
+
+---
+
+# Coding efficiency
+
+* DRY
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script>var slideshow = remark.create({
+"highlightStyle": "github",
+"highlightLines": true,
+"countIncrementalSlides": false
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();
+(function() {
+  "use strict"
+  // Replace <script> tags in slides area to make them executable
+  var scripts = document.querySelectorAll(
+    '.remark-slides-area .remark-slide-container script'
+  );
+  if (!scripts.length) return;
+  for (var i = 0; i < scripts.length; i++) {
+    var s = document.createElement('script');
+    var code = document.createTextNode(scripts[i].textContent);
+    s.appendChild(code);
+    var scriptAttrs = scripts[i].attributes;
+    for (var j = 0; j < scriptAttrs.length; j++) {
+      s.setAttribute(scriptAttrs[j].name, scriptAttrs[j].value);
+    }
+    scripts[i].parentElement.replaceChild(s, scripts[i]);
+  }
+})();
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();
+// adds .remark-code-has-line-highlighted class to <pre> parent elements
+// of code chunks containing highlighted lines with class .remark-code-line-highlighted
+(function(d) {
+  const hlines = d.querySelectorAll('.remark-code-line-highlighted');
+  const preParents = [];
+  const findPreParent = function(line, p = 0) {
+    if (p > 1) return null; // traverse up no further than grandparent
+    const el = line.parentElement;
+    return el.tagName === "PRE" ? el : findPreParent(el, ++p);
+  };
+
+  for (let line of hlines) {
+    let pre = findPreParent(line);
+    if (pre && !preParents.includes(pre)) preParents.push(pre);
+  }
+  preParents.forEach(p => p.classList.add("remark-code-has-line-highlighted"));
+})(document);</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>
