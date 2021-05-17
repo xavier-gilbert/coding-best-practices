@@ -335,9 +335,10 @@ replace_in_string &lt;- function(string, p1, p2) {
     )
 }
 ```
+Issues:
 * stutter
 * unclear naming
-* mix positional and named parameters
+* mixes positional and named parameters
 * no imports and no context
 * no example
 ]
@@ -351,23 +352,23 @@ replace_in_string &lt;- function(string, p1, p2) {
 &lt;br/&gt;
 &lt;br/&gt;
 
-&gt; * Supports your code, enhances debug and maintainability
+&gt; * Supports your code, enhances debug and maintainability.
 
 --
 
-&gt; * Facilitates code sharing
+&gt; * Facilitates code sharing.
 
 --
 
-&gt; * Helps you remember
+&gt; * Helps you remember the logic you wanted to implement.
 
 --
 
-&gt; * Improves testing (`@example` in R or `doctest` in Python)
+&gt; * Improves testing (`@example` in R or `doctest` in Python).
 
 --
 
-&gt; * Is a pre-requisite to building packages
+&gt; * Is a pre-requisite to building packages.
 
 ---
 
@@ -404,6 +405,7 @@ output = google_places[["postcode", "address", "candidates"]][google_places["can
 --
 
 ```python
+# Python: create a code block with parenthesis to indent
 output = (
     google_places[["postcode", "address", "candidates"]][
         google_places["candidates"] == 1
@@ -431,23 +433,32 @@ output = (
 &lt;br/&gt;
 &lt;br/&gt;
 
-&gt; * Easier to read = easier to understand
+&gt; * Easier to read = easier to understand.
 
 --
 
-&gt; * Easier to read = easier to debug (closures in particular)
+&gt; * Easier to read = easier to debug (closures in particular).
 
 --
 
-&gt; * Easy (pre) formatting: &lt;kbd&gt;Ctrl&lt;/kbd&gt; + &lt;code&gt;⇧&lt;/code&gt; + &lt;kbd&gt;A&lt;/kbd&gt; (RStudio)
+&gt; * Easy formatting: &lt;kbd&gt;Ctrl&lt;/kbd&gt; + &lt;code&gt;⇧&lt;/code&gt; + &lt;kbd&gt;A&lt;/kbd&gt; (RStudio).
 
 --
 
-&gt; * Use [`styler`](https://www.tidyverse.org/blog/2017/12/styler-1.0.0/) (R), [`black`](https://black.readthedocs.io/en/stable/) (python)
+&gt; * Use [`styler`](https://www.tidyverse.org/blog/2017/12/styler-1.0.0/) (R), [`black`](https://black.readthedocs.io/en/stable/) (python).
 
 --
 
 &gt; * There is one for every language, e.g. [`Prettier`](https://prettier.io/) covers HTML, SCSS, JSX, Elm, PHP, Ruby, Java, Javascript, ...
+
+--
+
+&lt;br/&gt;
+&lt;div style="background-color: pink; padding: 10px 10px 10px 10px;"&gt;
+  &lt;p&gt;
+    Use formatting tools and/or keyboard shortcuts!
+  &lt;/p&gt;
+&lt;/div&gt;
 
 ---
 
@@ -492,9 +503,173 @@ DEFRA_get &lt;- function(URL_DEFRA){
 
 ---
 
-# Coding efficiency
+# Consistency
 
-* DRY
+```r
+library(xml2)                                                    # import xml2 but not XML
+
+#Function to get DEFRA data                                      # stutter
+DEFRA_get &lt;- function(URL_DEFRA){                                # poor naming
+  # Function to download DEFRA data from XML URL string input    # stutter
+  URL &lt;- URL_DEFRA                                               # unnecessary reassignment 
+  res &lt;- read_xml(URL)
+  res &lt;- xml2::xml_child(res, 2)                                 # unnecessary reassignment 
+  res &lt;- XML::xmlParse(res)                                      # could use xml2
+  
+  # extract establishment data
+  est &lt;- res %&gt;%                                                 # use pipes + assignment
+    XML::getNodeSet("//establishement") %&gt;%
+    XML::xmlToDataFrame()
+
+  res2 &lt;- xmlToDataFrame(res)                                    # unnecessary reassignment 
+  res3 &lt;- cbind(est, res2)                                       # unnecessary reassignment 
+
+  res &lt;- res3                                                    # unnecessary reassignment 
+  res[["establishment"]] &lt;- gsub("[0-9]", "", res$establishment) # mix `[[` and `$`
+  res$URL &lt;- URL_DEFRA                                           # mix `[[` and `$`
+  
+  return(res)                                                    # redundant return
+}
+```
+
+&gt; * In R, `::`accesses a function exported by a specific package.
+&gt; * Avoid importing the full library, use `::` or `import::from()`.
+&gt; * Be consistent with accessors (`[`, `[[`, `$`).
+
+---
+
+# Consistency
+
+```r
+import::from(magrittr, "%&gt;%")                          # only import what is necessary ...
+import::from(xml2, read_xml, xml_child, xml_find_all)  # ... and avoid shadowing
+import::from(dplyr, mutate_at)
+
+#' Download data source and ...                        # documentation !!
+#'
+#' @param url ...
+#' @return a list ...
+xml_to_dataframe &lt;- function(url, src = "DEFRA"){      # modular and re-usable
+  res &lt;- list()
+
+  res$data &lt;- read_xml(url) %&gt;%
+    xml_child(2) %&gt;%
+    xml_find_all("//establishement") %&gt;%
+    as.data.frame() %&gt;%
+    mutate_at(
+      "establishment",
+       ~ gsub("[0-9]", "", .x)
+    )
+  
+  res$url &lt;- url
+
+  res
+}
+```
+
+&gt; * Only import the necessary libraries and avoid shadowing.
+&gt; * Top level imports and documentation.
+&gt; * Modular and reusable (can be used for more than DEFRA).
+&gt; * Consistent use of pipes, no unnecessary reassignment, shorter.
+
+---
+
+# Clarity, modularity and efficiency
+
+```r
+urls &lt;- c(
+  "https://maps.googleapis.com/maps/api/postcode='EC2A 0RN'",
+  "https://maps.googleapis.com/maps/api/postcode='E8 3PE'",
+  "https://maps.googleapis.com/maps/api/postcode='BN1 2RD'"
+)
+
+for (i in 1:length(urls)) {                                     # not modular
+  res &lt;- c()
+  res[i] &lt;- url %&gt;%
+    fromJSON() %&gt;%
+    unlist() %&gt;%
+    as.list() %&gt;%
+    as_tibble()
+}
+
+tbl &lt;- tibble()                                                 # DRY
+
+for (i in 1:length(res)) {                                      # DRY
+  tbl &lt;- bind_rows(                                             # grow and copy
+    tbl,
+    res[i]
+  )
+}
+```
+
+&gt; * `for` loops are hard to read and memory inefficient.
+&gt; * Not modular `-&gt;` hard to test and debug.
+&gt; * Do Not Repeat Yourself (DRY principle).
+
+---
+
+# Clarity, modularity and efficiency
+
+```r
+urls &lt;- c(
+  "https://maps.googleapis.com/maps/api/postcode='EC2A 0RN'",
+  "https://maps.googleapis.com/maps/api/postcode='E8 3PE'",
+  "https://maps.googleapis.com/maps/api/postcode='BN1 2RD'"
+)
+
+get_google_nearby_search &lt;- function(url) {                      # modular + test ready 
+  url %&gt;%
+    fromJSON() %&gt;%
+    unlist() %&gt;%
+    as.list()
+}
+
+places &lt;-
+  apply(
+    urls,
+    get_google_nearby_search
+  ) %&gt;%
+  as_tibble()                                                    # single vectorized operation
+```
+
+&gt; * `apply()` makes code clearer and shorter.
+&gt; * `apply()` indicates the output's data structure (e.g. `lapply()`).
+&gt; * No growing of data structures `-&gt;` no memory clutter `-&gt;` faster.
+
+--
+
+&lt;div style="background-color: pink; padding: 10px 10px 10px 10px;"&gt;
+  &lt;p&gt;
+    In coding: clarity, modularity and efficiency often go hand in hand.
+  &lt;/p&gt;
+&lt;/div&gt;
+
+---
+
+# Clarity, modularity and efficiency
+
+--
+
+&lt;br/&gt;
+&lt;br/&gt;
+
+&gt; * Think "vectorized" and favor vectorized operations.
+
+--
+
+&gt; * Think "modularity" `-&gt;` "reusability".
+
+--
+
+&gt; * Avoid growing data structures - it makes copies and clutters memory.
+
+--
+
+&gt; * Functions and modularity `-&gt;` easy testing (input `-&gt;` output).
+
+--
+
+&gt; * Most programming languages have `map`, `filter`, `apply`: they have been designed to write faster and more maintainable code.
     </textarea>
 <style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
 <script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
