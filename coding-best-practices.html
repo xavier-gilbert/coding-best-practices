@@ -781,6 +781,45 @@ df &lt;- pd.read_csv(
 
 ---
 
+# Testing
+
+```r
+# R/address.R
+format_postcode &lt;- function(postcode, locale = "GBR") {
+  switch(locale,
+    "GBR" = {
+      postcode_pattern &lt;- "([A-Z]{1,2}\\d[A-Z\\d]?)(\\d[A-Z]{2})"
+    }
+  )
+
+  postcode &lt;- str_squish(postcode) %&gt;%
+    toupper()
+
+  if (!grepl(" ", postcode, fixed = TRUE)) {
+    gsub(postcode_pattern, "\\1 \\2", postcode, perl = TRUE)
+  } else {
+    postcode
+  }
+
+  case_when(
+    !grepl(" ", postcode, fixed = TRUE) ~ gsub(postcode_pattern, "\\1 \\2", postcode, perl = TRUE),
+    postcode == "NAN" ~ NA_character_,
+    is.na(postcode) ~ NA_character_,
+    TRUE ~ postcode
+  )
+}
+
+# test/testthat/test-address.R
+test_that("format postcodes", {
+  expect_equal(format_postcode("EC3R0RN"), "EC3R 0RN")
+  expect_equal(format_postcode("  EC28EE "), "EC2 8EE")
+  expect_equal(format_postcode("N17RN  "), "N1 7RN")
+  expect_equal(format_postcode("N17  "), "N17")
+})
+```
+
+---
+
 # More on good practices?
 
 
