@@ -4,7 +4,7 @@
     <title>Coding Best Practices</title>
     <meta charset="utf-8" />
     <meta name="author" content="Xavier Gilbert" />
-    <meta name="date" content="2021-05-12" />
+    <meta name="date" content="2021-05-17" />
     <link href="libs/remark-css/default.css" rel="stylesheet" />
     <link href="libs/remark-css/default-fonts.css" rel="stylesheet" />
   </head>
@@ -15,8 +15,8 @@ class: center, middle, inverse, title-slide
 # Coding Best Practices
 ## </br>
 ### Xavier Gilbert
-### FSA
-### 2021-05-12
+### FSA, Data Science Team
+### 2021-05-17
 
 ---
 
@@ -479,7 +479,7 @@ DEFRA_get &lt;- function(URL_DEFRA){
   
   # extract establishment data
   est &lt;- res %&gt;%
-    XML::getNodeSet("//establishement") %&gt;%
+    XML::getNodeSet("//establishment") %&gt;%
     XML::xmlToDataFrame()
 
   res2 &lt;- xmlToDataFrame(res)
@@ -518,7 +518,7 @@ DEFRA_get &lt;- function(URL_DEFRA){                                # poor namin
   
   # extract establishment data
   est &lt;- res %&gt;%                                                 # use pipes + assignment
-    XML::getNodeSet("//establishement") %&gt;%
+    XML::getNodeSet("//establishment") %&gt;%
     XML::xmlToDataFrame()
 
   res2 &lt;- xmlToDataFrame(res)                                    # unnecessary reassignment 
@@ -554,7 +554,7 @@ xml_to_dataframe &lt;- function(url, src = "DEFRA"){      # modular and re-usabl
 
   res$data &lt;- read_xml(url) %&gt;%
     xml_child(2) %&gt;%
-    xml_find_all("//establishement") %&gt;%
+    xml_find_all("//establishment") %&gt;%
     as.data.frame() %&gt;%
     mutate_at(
       "establishment",
@@ -610,6 +610,39 @@ for (i in 1:length(res)) {                                      # DRY
 
 # Clarity, modularity and efficiency
 
+### Functions, a quick reminder
+
+&gt; * Self contained pieces of code that encapsulate a specific task.
+&gt; * Take an input (e.g. data) and/or parameters and return an output.
+&gt; * Can be called multiple times in the code (instead of rewriting).
+&gt; * Split program is sub pieces of code (modularity).
+&gt; * Isolates code and keep namespace clean.
+&gt; * Facilitate testing.
+
+--
+
+```r
+# Declare a function in R
+hello_me &lt;- function(my_name) {
+  print(
+    paste0("Hello ", string, "!")
+  )
+}
+
+# Declare a function in Python
+def hello_me(my_name):
+    print("Hello " + my_name + "!")
+    
+
+# output
+hello_me("Xavier")
+&gt; "Hello Xavier!"
+```
+
+---
+
+# Clarity, modularity and efficiency
+
 ```r
 urls &lt;- c(
   "https://maps.googleapis.com/maps/api/postcode='EC2A 0RN'",
@@ -650,9 +683,6 @@ places &lt;-
 
 --
 
-&lt;br/&gt;
-&lt;br/&gt;
-
 &gt; * Think "vectorized" and favor vectorized operations.
 
 --
@@ -669,7 +699,106 @@ places &lt;-
 
 --
 
-&gt; * Most programming languages have `map`, `filter`, `apply`: they have been designed to write faster and more maintainable code.
+&gt; * Most programming languages have `map`, `filter`, `reduce`, `apply` ... they have been designed to write faster, maintainable and reproducible code (one given input always produces the same output).
+
+--
+
+&lt;div style="background-color: LightGrey; padding: 10px 10px 10px 10px;"&gt;
+  &lt;p&gt;
+    &lt;code&gt;lapply()&lt;/code/&gt;: apply a function to every element of a list and returns a list.
+  &lt;/p&gt;
+  &lt;p&gt;
+    &lt;code&gt;sapply()&lt;/code/&gt; works like &lt;code&gt;lapply()&lt;/code&gt;, but tries to simplify the output to the most elementary data structure that is possible.
+  &lt;/p&gt;
+&lt;/div&gt;
+
+
+---
+
+# Portability
+
+.pull-left[
+BAD
+```python
+import pandas as pd
+
+
+# hard coded + not cross-platform
+base_dir = "C:/Users/UserName/myproject/"
+fname = "establishments.csv"
+
+df &lt;- pd.read_csv(
+    base_dir + "data/" + fname
+)
+```
+]
+
+.pull-right[
+GOOD
+```python
+from pathlib import Path
+import pandas as pd
+
+
+base_dir = Path(__file__).parent.absolute()
+fname = "establishments.csv"
+
+df &lt;- pd.read_csv(
+    base_dir / "data" / fname
+)
+```
+]
+
+--
+
+&lt;div style="background-color: pink; padding: 10px 10px 10px 10px;"&gt;
+  &lt;p&gt;
+    DO NOT - hard code or write code that requires other users to modify, comment or uncomment your code for it to work.
+  &lt;/p&gt;
+&lt;/div&gt;
+&lt;br/&gt;
+&lt;div style="background-color: LightGreen; padding: 10px 10px 10px 10px;"&gt;
+  &lt;p&gt;
+    DO - use functions or methods that resolve &lt;code&gt;PATH&lt;/code&gt; and support cross platform (&lt;span&gt;"&amp;#92;"&lt;/span&gt; on Windows and &lt;span&gt;"&amp;#47;"&lt;/span&gt; on Unix).
+  &lt;/p&gt;
+&lt;/div&gt;
+
+---
+
+# Testing
+
+&gt; * We all test our code during development, unfortunately, we rarely keep track of these little blobs of code that are actually unit tests.
+
+&gt; * Testing helps build maintainable and robust code, that does not break upon changes.
+
+&gt; * Basic testing (documentation):
+&gt;   * R - [`@example`](https://cran.r-project.org/web/packages/roxygen2/vignettes/rd.html)
+&gt;   * Python - [`doctest`](https://docs.python.org/3/library/doctest.html)
+
+&gt; * Testing frameworks/libraries
+&gt;   * R - [`testthat`](https://testthat.r-lib.org/)
+&gt;   * Python - [`unittest`](https://docs.python.org/3/library/unittest.html), [`pytest`](https://docs.pytest.org/en/6.2.x/), [`nose`](https://nose.readthedocs.io/en/latest/testing.html)
+
+---
+
+# More on good practices?
+
+
+&lt;div style="text-align: center; padding-top: 150px;"&gt;
+  &lt;p&gt;
+    Quality Assurance of Code for Analysis and Research
+  &lt;/p&gt;
+  &lt;a href=href="https://best-practice-and-impact.github.io/qa-of-code-guidance/intro.html"&gt;The Duck book&lt;/a&gt;
+&lt;/div&gt;
+&lt;br&gt;
+
+---
+
+# What you are Walking away from ...
+
+&lt;div style="text-align: center"&gt;
+  &lt;img src="bad_code.png" style="width: 90%; padding-top: 60px;"&gt;
+&lt;/div&gt;
     </textarea>
 <style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
 <script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>

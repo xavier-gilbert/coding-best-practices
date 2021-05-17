@@ -2,8 +2,8 @@
 title: "Coding Best Practices"
 subtitle: "</br>"
 author: "Xavier Gilbert"
-institute: "FSA"
-date: "2021-05-12"
+institute: "FSA, Data Science Team"
+date: "2021-05-17"
 output:
   xaringan::moon_reader:
     lib_dir: libs
@@ -472,7 +472,7 @@ DEFRA_get <- function(URL_DEFRA){
   
   # extract establishment data
   est <- res %>%
-    XML::getNodeSet("//establishement") %>%
+    XML::getNodeSet("//establishment") %>%
     XML::xmlToDataFrame()
 
   res2 <- xmlToDataFrame(res)
@@ -511,7 +511,7 @@ DEFRA_get <- function(URL_DEFRA){                                # poor naming
   
   # extract establishment data
   est <- res %>%                                                 # use pipes + assignment
-    XML::getNodeSet("//establishement") %>%
+    XML::getNodeSet("//establishment") %>%
     XML::xmlToDataFrame()
 
   res2 <- xmlToDataFrame(res)                                    # unnecessary reassignment 
@@ -547,7 +547,7 @@ xml_to_dataframe <- function(url, src = "DEFRA"){      # modular and re-usable
 
   res$data <- read_xml(url) %>%
     xml_child(2) %>%
-    xml_find_all("//establishement") %>%
+    xml_find_all("//establishment") %>%
     as.data.frame() %>%
     mutate_at(
       "establishment",
@@ -603,6 +603,39 @@ for (i in 1:length(res)) {                                      # DRY
 
 # Clarity, modularity and efficiency
 
+### Functions, a quick reminder
+
+> * Self contained pieces of code that encapsulate a specific task.
+> * Take an input (e.g. data) and/or parameters and return an output.
+> * Can be called multiple times in the code (instead of rewriting).
+> * Split program is sub pieces of code (modularity).
+> * Isolates code and keep namespace clean.
+> * Facilitate testing.
+
+--
+
+```r
+# Declare a function in R
+hello_me <- function(my_name) {
+  print(
+    paste0("Hello ", string, "!")
+  )
+}
+
+# Declare a function in Python
+def hello_me(my_name):
+    print("Hello " + my_name + "!")
+    
+
+# output
+hello_me("Xavier")
+> "Hello Xavier!"
+```
+
+---
+
+# Clarity, modularity and efficiency
+
 ```r
 urls <- c(
   "https://maps.googleapis.com/maps/api/postcode='EC2A 0RN'",
@@ -643,9 +676,6 @@ places <-
 
 --
 
-<br/>
-<br/>
-
 > * Think "vectorized" and favor vectorized operations.
 
 --
@@ -662,11 +692,111 @@ places <-
 
 --
 
-> * Most programming languages have `map`, `filter`, `reduce`, `apply` ... they have been designed to write faster, maintainable and reproducible code.
+> * Most programming languages have `map`, `filter`, `reduce`, `apply` ... they have been designed to write faster, maintainable and reproducible code (one given input always produces the same output).
+
+--
+
+<div style="background-color: LightGrey; padding: 10px 10px 10px 10px;">
+  <p>
+    <code>lapply()</code/>: apply a function to every element of a list and returns a list.
+  </p>
+  <p>
+    <code>sapply()</code/> works like <code>lapply()</code>, but tries to simplify the output to the most elementary data structure that is possible.
+  </p>
+</div>
+
 
 ---
 
 # Portability
+
+.pull-left[
+BAD
+```python
+import pandas as pd
+
+
+# hard coded + not cross-platform
+base_dir = "C:/Users/UserName/myproject/"
+fname = "establishments.csv"
+
+df <- pd.read_csv(
+    base_dir + "data/" + fname
+)
+```
+]
+
+.pull-right[
+GOOD
+```python
+from pathlib import Path
+import pandas as pd
+
+
+base_dir = Path(__file__).parent.absolute()
+fname = "establishments.csv"
+
+df <- pd.read_csv(
+    base_dir / "data" / fname
+)
+```
+]
+
+--
+
+<div style="background-color: pink; padding: 10px 10px 10px 10px;">
+  <p>
+    DO NOT - hard code or write code that requires other users to modify, comment or uncomment your code for it to work.
+  </p>
+</div>
+<br/>
+<div style="background-color: LightGreen; padding: 10px 10px 10px 10px;">
+  <p>
+    DO - use functions or methods that resolve <code>PATH</code> and support cross platform (<span>"&#92;"</span> on Windows and <span>"&#47;"</span> on Unix).
+  </p>
+</div>
+
+---
+
+# Testing
+
+> * We all test our code during development, unfortunately, we rarely keep track of these little blobs of code that are actually unit tests.
+
+> * Testing helps build maintainable and robust code, that does not break upon changes.
+
+> * Basic testing (documentation):
+>   * R - [`@example`](https://cran.r-project.org/web/packages/roxygen2/vignettes/rd.html)
+>   * Python - [`doctest`](https://docs.python.org/3/library/doctest.html)
+
+> * Testing frameworks/libraries
+>   * R - [`testthat`](https://testthat.r-lib.org/)
+>   * Python - [`unittest`](https://docs.python.org/3/library/unittest.html), [`pytest`](https://docs.pytest.org/en/6.2.x/), [`nose`](https://nose.readthedocs.io/en/latest/testing.html)
+
+---
+
+# More on good practices?
+
+
+<div style="text-align: center; padding-top: 150px;">
+  <p>
+    Quality Assurance of Code for Analysis and Research
+  </p>
+  <a href=href="https://best-practice-and-impact.github.io/qa-of-code-guidance/intro.html">The Duck book</a>
+</div>
+<br>
+
+---
+
+# What you are Walking away from ...
+
+<div style="text-align: center">
+  <img src="bad_code.png" style="width: 90%; padding-top: 60px;">
+</div>
+
+
+
+
+
 
 
 
